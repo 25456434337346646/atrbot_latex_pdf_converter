@@ -1,0 +1,7 @@
+name: astrbot_plugin_latex_pdf_converter
+version: 1.0.0
+description: 将含有 LaTeX 公式的消息转换为 PDF 发送
+author: LaTeX PDF Converter
+dir_name: astrbot_plugin_latex_pdf_converter
+requirements:
+  - markdown2
