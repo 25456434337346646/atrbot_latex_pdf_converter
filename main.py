@@ -39,10 +39,10 @@ class LatexPdfConverterPlugin(Star):
             try:
                 pdf_path = await self._generate_pdf(text)
                 pdf_result = await self._send_pdf(pdf_path)
-                yield event.chain_result(pdf_result)
+                return event.chain_result(pdf_result)
             except Exception as e:
                 logger.error(f"[PDF生成] 失败: {str(e)}", exc_info=True)
-                yield event.plain_result(f"PDF 生成失败: {str(e)}")
+                return event.plain_result(f"PDF 生成失败: {str(e)}")
         except Exception as e:
             logger.error(f"[插件错误] {str(e)}", exc_info=True)
 
