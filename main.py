@@ -8,7 +8,6 @@ import time
 import re
 import socket
 import markdown2
-from aiohttp import web
 from playwright.async_api import async_playwright
 from astrbot.api.event import filter, AstrMessageEvent
 from astrbot.api.star import Context, Star, register
@@ -26,7 +25,6 @@ class LatexPdfConverterPlugin(Star):
         self.data_dir = "/AstrBot/data/pdf_reports"
         self.http_port = 8765
         os.makedirs(self.data_dir, exist_ok=True)
-        asyncio.create_task(self._start_http_server())
         asyncio.create_task(self._schedule_cleanup())
         logger.info("[LaTeX PDF Converter] 插件已初始化")
 
@@ -124,32 +122,6 @@ class LatexPdfConverterPlugin(Star):
         except Exception as e:
             logger.error(f"[文件发送] 失败: {str(e)}", exc_info=True)
             raise
-
-    async def _start_http_server(self):
-        try:
-            app = web.Application()
-            app.router.add_get("/pdf/{filename}", self._serve_pdf)
-            runner = web.AppRunner(app)
-            await runner.setup()
-            site = web.TCPSite(runner, "0.0.0.0", self.http_port)
-            await site.start()
-            logger.info(f"[HTTP服务器] 已启动: http://0.0.0.0:{self.http_port}")
-        except Exception as e:
-            logger.error(f"[HTTP服务器] 启动失败: {e}")
-
-    async def _serve_pdf(self, request):
-        filename = request.match_info["filename"]
-        filepath = os.path.join(self.data_dir, filename)
-
-        if not os.path.exists(filepath):
-            logger.warning(f"[HTTP服务器] 文件不存在: {filepath}")
-            return web.Response(status=404, text="File not found")
-
-        logger.info(f"[HTTP服务器] 提供文件: {filepath}")
-        return web.FileResponse(filepath, headers={
-            "Content-Type": "application/pdf",
-            "Content-Disposition": 'inline; filename="' + filename + '"'
-        })
 
     async def _schedule_cleanup(self):
         while True:
