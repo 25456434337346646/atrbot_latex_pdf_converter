@@ -20,9 +20,9 @@ logger = logging.getLogger("astrbot")
 @register("astrbot_plugin_latex_pdf_converter", "LaTeX PDF Converter",
           "将含有 LaTeX 公式的消息转换为 PDF 发送", "1.0.0")
 class LatexPdfConverterPlugin(Star):
-    def __init__(self, context: Context, config: AstrBotConfig):
+    def __init__(self, context: Context, config: AstrBotConfig = None):
         super().__init__(context)
-        self.config = config
+        self.config = config if config is not None else {}
         self.data_dir = "/AstrBot/data/pdf_reports"
         self.http_port = 8765
         os.makedirs(self.data_dir, exist_ok=True)
