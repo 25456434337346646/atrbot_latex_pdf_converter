@@ -28,8 +28,8 @@ class LatexPdfConverterPlugin(Star):
         asyncio.create_task(self._schedule_cleanup())
         logger.info("[LaTeX PDF Converter] 插件已初始化")
 
-    @filter.after_message_sent()
-    async def handle_after_message_sent(self, event: AstrMessageEvent):
+    @filter.on_decorating_result()
+    async def handle_decorating_result(self, event: AstrMessageEvent):
         try:
             text = event.message_str
             if not text or not self._has_latex_formula(text):
