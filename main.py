@@ -28,8 +28,8 @@ class LatexPdfConverterPlugin(Star):
         asyncio.create_task(self._schedule_cleanup())
         logger.info("[LaTeX PDF Converter] 插件已初始化")
 
-    @filter.on_llm_response()
-    async def handle_llm_response(self, event: AstrMessageEvent):
+    @filter.on_decorating_result()
+    async def handle_decorating_result(self, event: AstrMessageEvent) -> None:
         try:
             text = event.message_str
             if not text or not self._has_latex_formula(text):
@@ -39,10 +39,11 @@ class LatexPdfConverterPlugin(Star):
             try:
                 pdf_path = await self._generate_pdf(text)
                 pdf_result = await self._send_pdf(pdf_path)
-                return event.chain_result(pdf_result)
+                event.stop_event()
+                await event.send(event.chain_result(pdf_result))
             except Exception as e:
                 logger.error(f"[PDF生成] 失败: {str(e)}", exc_info=True)
-                return event.plain_result(f"PDF 生成失败: {str(e)}")
+                return
         except Exception as e:
             logger.error(f"[插件错误] {str(e)}", exc_info=True)
 
